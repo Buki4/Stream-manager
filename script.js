@@ -146,25 +146,64 @@ function addTag(tag) {
     }
 }
 
-function renderQuickTags(game) {
+async function renderQuickTags(gameId) {
     quickTagsContainer.innerHTML = '';
-    if (!game) return;
-    const gameTagsMap = {
-        'World of Warcraft': ['PvE', 'PvP', 'Рейд', 'Ключи', 'Азерот'],
-        'Escape from Tarkov': ['Вайп', 'Рейд', 'Лут', 'Шерпа', 'FPS'],
-        'Just Chatting': ['Общение', 'IRL', 'Реакции', 'Чилл', 'Стример'],
-        'Dota 2': ['Рейтинг', 'ММР', 'Мид', 'Керри', 'Саппорт'],
-        'Counter-Strike 2': ['CS2', 'Premier', 'Faceit', 'FPS', 'Киберспорт']
-    };
-    const tags = gameTagsMap[game] || ['Игры', 'Общение', 'Стрим', 'ПрямойЭфир', 'Стример'];
-    
-    tags.forEach(tag => {
-        const chip = document.createElement('div');
-        chip.className = 'favorite-chip';
-        chip.innerHTML = `<span class="chip-name">+ ${tag}</span>`;
-        chip.querySelector('.chip-name').addEventListener('click', () => addTag(tag));
-        quickTagsContainer.appendChild(chip);
-    });
+    if (!gameId) return;
+
+    const loading = document.createElement('span');
+    loading.style.fontSize = '12px';
+    loading.style.color = '#adadb8';
+    loading.textContent = '🔍 Сканируем топы Твича...';
+    quickTagsContainer.appendChild(loading);
+
+    try {
+        const response = await fetch(`https://api.twitch.tv/helix/streams?game_id=${gameId}&first=20`, {
+            headers: {
+                'Client-Id': CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        const data = await response.json();
+        
+        if (!data.data || data.data.length === 0) {
+            quickTagsContainer.innerHTML = '<span style="font-size:12px;color:#adadb8;">Стримеров не найдено</span>';
+            return;
+        }
+
+        const tagCounts = {};
+        const ignoredTags = ['Русский', 'English', 'Español', 'Deutsch', 'Français', 'Portuguese', 'Russian'];
+        
+        data.data.forEach(stream => {
+            if (stream.tags) {
+                stream.tags.forEach(tag => {
+                    if (ignoredTags.includes(tag)) return;
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
+            }
+        });
+
+        const topTags = Object.keys(tagCounts)
+            .sort((a, b) => tagCounts[b] - tagCounts[a])
+            .slice(0, 10);
+
+        quickTagsContainer.innerHTML = '';
+        if (topTags.length === 0) {
+            quickTagsContainer.innerHTML = '<span style="font-size:12px;color:#adadb8;">Трендовых тегов не найдено</span>';
+            return;
+        }
+
+        topTags.forEach(tag => {
+            const chip = document.createElement('div');
+            chip.className = 'favorite-chip';
+            chip.innerHTML = `<span class="chip-name">+ ${tag}</span>`;
+            chip.querySelector('.chip-name').addEventListener('click', () => addTag(tag));
+            quickTagsContainer.appendChild(chip);
+        });
+
+    } catch (e) {
+        console.error('Ошибка при получении тегов:', e);
+        quickTagsContainer.innerHTML = '<span style="font-size:12px;color:#ff4f4f;">Ошибка загрузки тегов</span>';
+    }
 }
 
 function renderFavoriteTags() {
@@ -450,7 +489,7 @@ async function fetchChannelInfo() {
                 tagsInput.value = data.data[0].tags.join(', ');
             }
             updateTagsCounter();
-            renderQuickTags(data.data[0].game_name);
+            renderQuickTags(data.data[0].game_id);
             fetchChatSettings();
         }
     } catch (e) {
@@ -523,7 +562,7 @@ function renderSuggestions(games) {
             gameInput.value = game.name;
             selectedGameId = game.id;
             gameSuggestions.classList.add('hidden');
-            renderQuickTags(game.name);
+            renderQuickTags(game.id);
         });
         
         gameSuggestions.appendChild(li);

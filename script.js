@@ -129,7 +129,7 @@ async function generateTitleFromGemini(keyword, game, level) {
                     { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
                     { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
                 ],
-                generationConfig: { temperature: 0.9, maxOutputTokens: 50 }
+                generationConfig: { temperature: 0.9, maxOutputTokens: 300 }
             })
         });
 

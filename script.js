@@ -118,7 +118,7 @@ async function generateTitleFromGemini(keyword, game, level) {
 7. Ответь ТОЛЬКО самим названием. Без кавычек, без лишних приветствий.`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

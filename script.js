@@ -114,7 +114,7 @@ async function generateTitleFromGemini(keyword, game, level) {
 Правила: Ответь ТОЛЬКО самим названием стрима. Не используй кавычки. Максимум 10 слов. Сделай его звучным.`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -131,9 +131,18 @@ async function generateTitleFromGemini(keyword, game, level) {
             return null;
         }
 
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            return data.candidates[0].content.parts[0].text.trim().replace(/^["']|["']$/g, '');
+        if (!data.candidates || data.candidates.length === 0) {
+            showStatus('Нейросеть не вернула ответ', true);
+            return null;
         }
+        
+        const candidate = data.candidates[0];
+        if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
+            showStatus('Ответ заблокирован фильтром безопасности', true);
+            return null;
+        }
+
+        return candidate.content.parts[0].text.trim().replace(/^["']|["']$/g, '');
     } catch (e) {
         showStatus('Ошибка при обращении к нейросети', true);
         console.error(e);

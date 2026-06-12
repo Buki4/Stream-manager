@@ -82,7 +82,13 @@ input:focus, textarea:focus {
 .title-tools {
     display: flex;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+#title-keyword {
+    flex: 1;
+    min-width: 120px;
 }
 
 .title-tools input {

@@ -1,5 +1,5 @@
 const CLIENT_ID = 'wp4nlqtylqr6frku7jzgay0at5r1iv';
-const REDIRECT_URI = 'http://localhost:3000';
+const REDIRECT_URI = 'https://Buki4.github.io/Stream-manager/';
 const SCOPES = 'channel:manage:broadcast user:read:email';
 
 const FAV_GAMES_KEY = 'twitch_manager_fav_games';

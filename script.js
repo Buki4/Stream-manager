@@ -4,6 +4,8 @@ const SCOPES = 'channel:manage:broadcast user:read:email moderator:manage:chat_s
 
 const FAV_GAMES_KEY = 'twitch_manager_fav_games';
 let favoriteGames = JSON.parse(localStorage.getItem(FAV_GAMES_KEY) || '[]');
+const FAV_TAGS_KEY = 'twitch_manager_fav_tags';
+let favoriteTags = JSON.parse(localStorage.getItem(FAV_TAGS_KEY) || '[]');
 
 let accessToken = null;
 let broadcasterId = null;
@@ -25,6 +27,10 @@ const titleSource = document.getElementById('title-source');
 const addFavBtn = document.getElementById('favorite-btn');
 
 const tagsInput = document.getElementById('stream-tags');
+const tagsCounter = document.getElementById('tags-counter');
+const favTagsBtn = document.getElementById('favorite-tags-btn');
+const quickTagsContainer = document.getElementById('quick-tags-container');
+const favTagsContainer = document.getElementById('favorite-tags-container');
 const chatSubOnly = document.getElementById('chat-subonly');
 const chatFollower = document.getElementById('chat-follower');
 const chatEmote = document.getElementById('chat-emote');
@@ -106,6 +112,97 @@ addFavBtn.addEventListener('click', () => {
     }
 });
 
+// --- TAGS LOGIC ---
+function getParsedTags() {
+    const val = tagsInput.value.trim();
+    if (!val) return [];
+    return val.split(',').map(t => t.trim().replace(/^#/, '')).filter(t => t);
+}
+
+function updateTagsCounter() {
+    const tags = getParsedTags();
+    tagsCounter.textContent = `${tags.length}/10`;
+    
+    let hasError = tags.length > 10;
+    if (tags.some(t => t.length > 25)) hasError = true;
+    
+    if (hasError) {
+        tagsCounter.classList.add('tag-error');
+        updateBtn.disabled = true;
+    } else {
+        tagsCounter.classList.remove('tag-error');
+        updateBtn.disabled = false;
+    }
+}
+
+tagsInput.addEventListener('input', updateTagsCounter);
+
+function addTag(tag) {
+    const tags = getParsedTags();
+    if (!tags.includes(tag) && tags.length < 10) {
+        tags.push(tag);
+        tagsInput.value = tags.join(', ');
+        updateTagsCounter();
+    }
+}
+
+function renderQuickTags(game) {
+    quickTagsContainer.innerHTML = '';
+    if (!game) return;
+    const gameTagsMap = {
+        'World of Warcraft': ['PvE', 'PvP', 'Рейд', 'Ключи', 'Азерот'],
+        'Escape from Tarkov': ['Вайп', 'Рейд', 'Лут', 'Шерпа', 'FPS'],
+        'Just Chatting': ['Общение', 'IRL', 'Реакции', 'Чилл', 'Стример'],
+        'Dota 2': ['Рейтинг', 'ММР', 'Мид', 'Керри', 'Саппорт'],
+        'Counter-Strike 2': ['CS2', 'Premier', 'Faceit', 'FPS', 'Киберспорт']
+    };
+    const tags = gameTagsMap[game] || ['Игры', 'Общение', 'Стрим', 'ПрямойЭфир', 'Стример'];
+    
+    tags.forEach(tag => {
+        const chip = document.createElement('div');
+        chip.className = 'favorite-chip';
+        chip.innerHTML = `<span class="chip-name">+ ${tag}</span>`;
+        chip.querySelector('.chip-name').addEventListener('click', () => addTag(tag));
+        quickTagsContainer.appendChild(chip);
+    });
+}
+
+function renderFavoriteTags() {
+    favTagsContainer.innerHTML = '';
+    if (favoriteTags.length === 0) return;
+    
+    const chip = document.createElement('div');
+    chip.className = 'favorite-chip';
+    chip.innerHTML = `<span class="chip-name">⭐ Мои теги: ${favoriteTags.slice(0, 3).join(', ')}...</span> <span class="remove-chip" title="Удалить">×</span>`;
+    
+    chip.querySelector('.chip-name').addEventListener('click', () => {
+        const tags = getParsedTags();
+        favoriteTags.forEach(t => {
+            if (!tags.includes(t) && tags.length < 10) tags.push(t);
+        });
+        tagsInput.value = tags.join(', ');
+        updateTagsCounter();
+    });
+    
+    chip.querySelector('.remove-chip').addEventListener('click', () => {
+        favoriteTags = [];
+        localStorage.removeItem(FAV_TAGS_KEY);
+        renderFavoriteTags();
+    });
+    
+    favTagsContainer.appendChild(chip);
+}
+
+favTagsBtn.addEventListener('click', () => {
+    const tags = getParsedTags();
+    if (tags.length > 0) {
+        favoriteTags = tags;
+        localStorage.setItem(FAV_TAGS_KEY, JSON.stringify(favoriteTags));
+        renderFavoriteTags();
+        showStatus('Теги сохранены в избранное!');
+    }
+});
+
 // Gemini AI Generator
 async function generateTitleFromGemini(keyword, game, level) {
     const apiKey = localStorage.getItem('gemini_api_key');
@@ -122,7 +219,7 @@ async function generateTitleFromGemini(keyword, game, level) {
         funny: 'Максимально смешно, абсурдно, иронично, мемы, чтобы зрители смеялись.'
     };
     
-    const prompt = `Ты профессиональный стример на Twitch. Твоя задача — придумать ОДНО гениальное, цепляющее и смешное название для прямого эфира.
+    const prompt = `Ты профессиональный стример на Twitch. Твоя задача — придумать ОДНО гениальное, цепляющее название для прямого эфира, а также 5 релевантных тегов (без решетки).
 Обязательные условия:
 1. Игра: ${game}
 2. Ключевое слово/тема стрима: ${keyword}
@@ -130,7 +227,7 @@ async function generateTitleFromGemini(keyword, game, level) {
 4. Название должно органично включать в себя Ключевое слово. 
 5. Название должно быть длинным, цепляющим (от 5 до 15 слов).
 6. НЕ пиши просто одно слово. Это должно быть законченное предложение, описывающее суть стрима с интригой.
-7. Ответь ТОЛЬКО самим названием. Без кавычек, без лишних приветствий.`;
+7. Верни результат строго в формате JSON: {"title": "Название стрима", "tags": ["тег1", "тег2", "тег3", "тег4", "тег5"]}`;
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -144,7 +241,7 @@ async function generateTitleFromGemini(keyword, game, level) {
                     { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
                     { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
                 ],
-                generationConfig: { temperature: 0.9 }
+                generationConfig: { temperature: 0.9, responseMimeType: "application/json" }
             })
         });
 
@@ -173,7 +270,13 @@ async function generateTitleFromGemini(keyword, game, level) {
             return null;
         }
 
-        return candidate.content.parts[0].text.trim().replace(/^["']|["']$/g, '');
+        const jsonText = candidate.content.parts[0].text.trim();
+        try {
+            return JSON.parse(jsonText);
+        } catch(e) {
+            console.error("JSON Parse error:", e);
+            return null;
+        }
     } catch (e) {
         showStatus('Ошибка при обращении к нейросети', true);
         console.error(e);
@@ -217,7 +320,25 @@ function generateLocalTitle(keyword, game, level) {
         mainPart += ` про ${keyword}`;
     }
     
-    return `${prefix} ${mainPart} ${suffix}`;
+    const gameTagsMap = {
+        'World of Warcraft': ['PvE', 'PvP', 'Рейд', 'Ключи', 'Азерот'],
+        'Escape from Tarkov': ['Вайп', 'Рейд', 'Лут', 'Шерпа', 'FPS'],
+        'Just Chatting': ['Общение', 'IRL', 'Реакции', 'Чилл', 'Стример'],
+        'Dota 2': ['Рейтинг', 'ММР', 'Мид', 'Керри', 'Саппорт'],
+        'Counter-Strike 2': ['CS2', 'Premier', 'Faceit', 'FPS', 'Киберспорт']
+    };
+    
+    let tags = gameTagsMap[game] ? [...gameTagsMap[game]] : ['Игры', 'Общение', 'Стрим', 'ПрямойЭфир', 'Стример'];
+    
+    if (level === 'chill') tags.push('УютныйСтрим', 'БезНапряга');
+    if (level === 'bait') tags.push('Шок', 'Интрига');
+    if (level === 'toxic') tags.push('Тильт', 'Рейдж');
+    if (level === 'funny') tags.push('Смешно', 'Рофлы');
+    
+    return {
+        title: `${prefix} ${mainPart} ${suffix}`,
+        tags: tags.slice(0, 5)
+    };
 }
 
 randomizeBtn.addEventListener('click', async () => {
@@ -241,8 +362,12 @@ randomizeBtn.addEventListener('click', async () => {
         generated = await generateTitleFromGemini(keyword || 'ЧАТ', gameName, level);
     }
 
-    if (generated) {
-        titleInput.value = generated;
+    if (generated && generated.title) {
+        titleInput.value = generated.title;
+        if (generated.tags && generated.tags.length > 0) {
+            tagsInput.value = generated.tags.join(', ');
+            updateTagsCounter();
+        }
     }
     
     randomizeBtn.disabled = false;
@@ -270,6 +395,7 @@ function showApp() {
     loginSection.classList.add('hidden');
     appSection.classList.remove('hidden');
     renderFavorites();
+    renderFavoriteTags();
 }
 
 function showStatus(text, isError = false) {
@@ -323,6 +449,8 @@ async function fetchChannelInfo() {
             if (data.data[0].tags) {
                 tagsInput.value = data.data[0].tags.join(', ');
             }
+            updateTagsCounter();
+            renderQuickTags(data.data[0].game_name);
             fetchChatSettings();
         }
     } catch (e) {
@@ -395,6 +523,7 @@ function renderSuggestions(games) {
             gameInput.value = game.name;
             selectedGameId = game.id;
             gameSuggestions.classList.add('hidden');
+            renderQuickTags(game.name);
         });
         
         gameSuggestions.appendChild(li);

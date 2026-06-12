@@ -329,6 +329,7 @@ button:active {
 }
 .success { color: #00ff7f; }
 .error { color: #ff4f4f; }
+.tag-error { color: #ff4f4f !important; font-weight: bold; }
 
 .modal {
     position: fixed;

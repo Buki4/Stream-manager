@@ -57,8 +57,16 @@
             </div>
             
             <div class="form-group">
-                <label for="stream-tags">Теги (до 10 штук, через запятую)</label>
-                <input type="text" id="stream-tags" placeholder="Например: ПервоеПрохождение, БезПодсказок">
+                <label for="stream-tags" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Теги (через запятую)</span>
+                    <span id="tags-counter" style="font-size: 12px; color: #adadb8;">0/10</span>
+                </label>
+                <div class="game-input-wrapper">
+                    <input type="text" id="stream-tags" placeholder="Например: ПервоеПрохождение, БезПодсказок">
+                    <button id="favorite-tags-btn" class="icon-btn" title="Сохранить текущие теги в избранное">⭐</button>
+                </div>
+                <div id="quick-tags-container" class="favorites-container" style="margin-top: 8px;"></div>
+                <div id="favorite-tags-container" class="favorites-container" style="margin-top: 8px;"></div>
             </div>
             
             <button id="update-btn" class="primary-btn" style="margin-bottom: 20px;">Обновить информацию</button>
@@ -116,6 +124,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>

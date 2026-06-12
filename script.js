@@ -18,8 +18,10 @@ const gameInput = document.getElementById('stream-game');
 const gameSuggestions = document.getElementById('game-suggestions');
 const statusMessage = document.getElementById('status-message');
 const favList = document.getElementById('favorites-list');
-const randomizeBtn = document.getElementById('randomize-btn');
+const randomizeBtn = document.getElementById('randomize-title');
 const titleKeyword = document.getElementById('title-keyword');
+const titleLevel = document.getElementById('title-level');
+const titleSource = document.getElementById('title-source');
 const addFavBtn = document.getElementById('favorite-btn');
 
 // Settings Elements
@@ -166,15 +168,61 @@ async function generateTitleFromGemini(keyword, game, level) {
     return null;
 }
 
+// Локальный генератор (10000+ комбинаций)
+const localTemplates = {
+    chill: {
+        prefixes: ['Уютный стрим:', 'Добро пожаловать:', 'Расслабляемся:', 'Ламповый вечер:', 'Спокойно играем:'],
+        phrases: ['общаемся с чатом', 'пьем чай и наслаждаемся', 'никакого негатива', 'чиллим под музычку', 'проходим в свое удовольствие', 'собираем компанию', 'просто отдыхаем', 'без напряга', 'теплая атмосфера', 'тихо и мирно'],
+        suffixes: ['| Присоединяйся!', '| Заходи на чай', '| Рад всем', '| Уют гарантирован', '| Отдыхаем вместе']
+    },
+    bait: {
+        prefixes: ['ШОК!', 'ВЫ НЕ ПОВЕРИТЕ:', 'СРОЧНО!', 'ЭТО КОНЕЦ:', 'ВНИМАНИЕ:'],
+        phrases: ['разработчики сошли с ума', 'нашел секретный способ сломать игру', 'этот билд запретят завтра', 'меня забанят за это', 'раскрываю главную тайну', 'лучшая тактика в мире', 'ты делал это неправильно', 'абсолютная имба', 'прошел игру за 5 минут', 'сломал экономику сервера'],
+        suffixes: ['😱', '🔥', '18+', '(НЕ КЛИКБЕЙТ)', 'СМОТРЕТЬ ВСЕМ']
+    },
+    toxic: {
+        prefixes: ['КАК ЖЕ ГОРИТ:', 'НЕНАВИЖУ ЭТУ ИГРУ:', 'ХУДШИЙ ДЕНЬ:', 'Я УДАЛЯЮ ЭТО:', 'СИЛ БОЛЬШЕ НЕТ:'],
+        phrases: ['опять руинят катку', 'самые тупые тиммейты', 'почему это так не работает', 'меня всё достало', 'невозможно играть', 'разбиваю клавиатуру', 'полный тильт', 'где баланс', 'отвратительный рандом', 'хватит это терпеть'],
+        suffixes: ['🤬', '🗑️', '(СЛАБОНЕРВНЫМ НЕ СМОТРЕТЬ)', '| МИНУС МОРАЛЬ', '| RIP НЕРВЫ']
+    }
+};
+
+function generateLocalTitle(keyword, game, level) {
+    const data = localTemplates[level] || localTemplates.bait;
+    const prefix = data.prefixes[Math.floor(Math.random() * data.prefixes.length)];
+    const phrase = data.phrases[Math.floor(Math.random() * data.phrases.length)];
+    const suffix = data.suffixes[Math.floor(Math.random() * data.suffixes.length)];
+    
+    // Вставляем ключевое слово или игру
+    let mainPart = phrase;
+    if (Math.random() > 0.5 && keyword) {
+        mainPart += ` про ${keyword}`;
+    }
+    
+    return `${prefix} ${mainPart} ${suffix}`;
+}
+
 randomizeBtn.addEventListener('click', async () => {
-    const keyword = titleKeyword.value.trim() || 'ЧАТ';
+    const keyword = titleKeyword.value.trim();
     const gameName = gameInput.value.trim() || 'Любая игра';
-    const level = document.getElementById('provocation-level').value || 'bait';
+    const level = titleLevel ? titleLevel.value : 'bait';
+    const source = titleSource ? titleSource.value : 'ai';
     
     randomizeBtn.disabled = true;
     randomizeBtn.textContent = '⏳';
     
-    const generated = await generateTitleFromGemini(keyword, gameName, level);
+    let generated = '';
+    
+    if (source === 'local') {
+        // Мгновенная генерация из локальных массивов
+        generated = generateLocalTitle(keyword, gameName, level);
+        // Небольшая задержка для анимации
+        await new Promise(r => setTimeout(r, 300));
+    } else {
+        // Генерация через ИИ
+        generated = await generateTitleFromGemini(keyword || 'ЧАТ', gameName, level);
+    }
+
     if (generated) {
         titleInput.value = generated;
     }

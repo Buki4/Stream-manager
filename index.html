@@ -29,12 +29,16 @@
                 <label for="stream-title">Название стрима</label>
                 <div class="title-tools">
                     <input type="text" id="title-keyword" placeholder="О чем стрим? (слово для рандома)">
-                    <select id="provocation-level" class="styled-select" title="Уровень провокационности">
+                    <select id="title-level" class="styled-select">
                         <option value="chill">😊 Чилл</option>
                         <option value="bait" selected>🔥 Кликбейт</option>
                         <option value="toxic">☢️ Жёстко</option>
                     </select>
-                    <button id="randomize-btn" class="secondary-btn" title="Сгенерировать смешное название">🎲</button>
+                    <select id="title-source" class="styled-select">
+                        <option value="ai" selected>🧠 Нейросеть</option>
+                        <option value="local">📝 По шаблонам (10000+)</option>
+                    </select>
+                    <button class="randomize-btn" id="randomize-title" title="Сгенерировать">🎲</button>
                 </div>
                 <textarea id="stream-title" rows="3" placeholder="Загрузка..."></textarea>
             </div>

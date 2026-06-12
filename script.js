@@ -137,7 +137,13 @@ async function generateTitleFromGemini(keyword, game, level) {
         
         if (data.error) {
             console.error(data.error);
-            showStatus('Ошибка API: ' + data.error.message, true);
+            let errorMsg = data.error.message;
+            if (errorMsg.includes('high demand') || data.error.code === 503) {
+                errorMsg = 'Серверы Google сейчас перегружены. Просто нажмите на кубик еще раз!';
+            } else if (data.error.code === 429) {
+                errorMsg = 'Вы превысили лимит запросов Google. Подождите минутку!';
+            }
+            showStatus('Ошибка ИИ: ' + errorMsg, true);
             return null;
         }
 

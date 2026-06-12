@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Stream Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 style="display: flex; justify-content: space-between; align-items: center;">
+            Управление стримом
+            <button id="settings-btn" class="icon-btn" title="Настройки ИИ" style="font-size: 20px; padding: 4px 8px;">⚙️</button>
+        </h1>
+        <div id="login-section">
+            <p style="text-align: center; color: #adadb8; margin-bottom: 20px; font-size: 14px;">
+                Для изменения названия и игры необходимо авторизоваться через ваш Twitch аккаунт.
+            </p>
+            <button id="login-btn" class="twitch-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+                </svg>
+                Войти через Twitch
+            </button>
+        </div>
+        <div id="app-section" class="hidden">
+            <div class="form-group">
+                <label for="stream-title">Название стрима</label>
+                <div class="title-tools">
+                    <input type="text" id="title-keyword" placeholder="О чем стрим? (слово для рандома)">
+                    <select id="provocation-level" class="styled-select" title="Уровень провокационности">
+                        <option value="chill">😊 Чилл</option>
+                        <option value="bait" selected>🔥 Кликбейт</option>
+                        <option value="toxic">☢️ Жёстко</option>
+                    </select>
+                    <button id="randomize-btn" class="secondary-btn" title="Сгенерировать смешное название">🎲</button>
+                </div>
+                <textarea id="stream-title" rows="3" placeholder="Загрузка..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="stream-game">Игра (Категория)</label>
+                <div class="game-input-wrapper">
+                    <input type="text" id="stream-game" autocomplete="off" placeholder="Начните вводить название игры...">
+                    <button id="favorite-btn" class="icon-btn" title="Сохранить текущую игру в избранное">⭐</button>
+                </div>
+                <ul id="game-suggestions" class="hidden"></ul>
+                <div id="favorites-list" class="favorites-container">
+                    <!-- Заполняется из JS -->
+                </div>
+            </div>
+            
+            <button id="update-btn" class="primary-btn">Обновить информацию</button>
+            <div id="status-message"></div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 style="margin-top: 0;">Настройки ИИ</h2>
+            <div class="form-group">
+                <label for="gemini-api-key">Ключ Google Gemini API</label>
+                <input type="password" id="gemini-api-key" placeholder="AIzaSy...">
+                <p style="font-size: 13px; color: #adadb8; margin-top: 8px;">
+                    Получить бесплатный ключ можно в <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #bf94ff; text-decoration: none;">Google AI Studio</a>. Ключ сохраняется только в вашем браузере.
+                </p>
+            </div>
+            <button id="save-settings-btn" class="primary-btn">Сохранить и закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

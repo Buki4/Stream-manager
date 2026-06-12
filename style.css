@@ -1,0 +1,287 @@
+:root {
+    --twitch-purple: #9146FF;
+    --twitch-purple-hover: #772CE8;
+    --bg-color: #0e0e10;
+    --panel-bg: rgba(24, 24, 27, 0.6);
+    --text-color: #efeff1;
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: radial-gradient(circle at top right, rgba(145, 70, 255, 0.15), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(145, 70, 255, 0.05), transparent 40%);
+}
+
+.container {
+    background: var(--panel-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #adadb8;
+    font-weight: 600;
+}
+
+input, textarea {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    color: white;
+    padding: 12px;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    resize: vertical;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--twitch-purple);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(145, 70, 255, 0.3);
+}
+
+.title-tools {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.title-tools input {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.styled-select {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.styled-select:focus, .styled-select:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.styled-select option {
+    background-color: var(--bg-color);
+    color: white;
+}
+
+.game-input-wrapper {
+    display: flex;
+    gap: 8px;
+}
+
+.secondary-btn, .icon-btn {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.secondary-btn:hover, .icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.favorites-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.favorite-chip {
+    background: rgba(145, 70, 255, 0.2);
+    border: 1px solid rgba(145, 70, 255, 0.4);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.favorite-chip:hover {
+    background: rgba(145, 70, 255, 0.3);
+}
+
+.favorite-chip .chip-name {
+    cursor: pointer;
+}
+
+.favorite-chip .remove-chip {
+    opacity: 0.5;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.favorite-chip .remove-chip:hover {
+    opacity: 1;
+    color: #ff4f4f;
+}
+
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.twitch-btn {
+    background-color: var(--twitch-purple);
+    color: white;
+}
+
+.twitch-btn:hover {
+    background-color: var(--twitch-purple-hover);
+    box-shadow: 0 4px 12px rgba(145, 70, 255, 0.4);
+}
+
+.primary-btn {
+    background-color: white;
+    color: black;
+    margin-top: 10px;
+}
+
+.primary-btn:hover {
+    background-color: #e5e5e5;
+}
+
+.primary-btn:disabled {
+    background-color: #adadb8;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#game-suggestions {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0 0;
+    position: absolute;
+    width: 100%;
+    background: #18181b;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+#game-suggestions li {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.1s;
+}
+
+#game-suggestions li:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#game-suggestions img {
+    width: 40px;
+    height: 53px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+#status-message {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+    min-height: 20px;
+    font-weight: 600;
+}
+.success { color: #00ff7f; }
+.error { color: #ff4f4f; }
+
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+}
+.modal-content {
+    background: var(--bg-color);
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid var(--input-border);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}

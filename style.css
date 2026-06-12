@@ -29,7 +29,7 @@ body {
     border-radius: 16px;
     padding: 40px;
     width: 100%;
-    max-width: 400px;
+    max-width: 750px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
@@ -84,6 +84,7 @@ input:focus, textarea:focus {
     gap: 8px;
     margin-bottom: 10px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 #title-keyword {
@@ -95,6 +96,12 @@ input:focus, textarea:focus {
     flex: 1;
     padding: 8px 12px;
     font-size: 14px;
+}
+
+.randomize-btn {
+    width: auto !important;
+    padding: 8px 16px !important;
+    flex-shrink: 0;
 }
 
 .styled-select {
@@ -181,7 +188,7 @@ input:focus, textarea:focus {
 
 .advanced-tools {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 16px;
 }
 

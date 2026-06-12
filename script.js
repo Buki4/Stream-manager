@@ -103,15 +103,15 @@ async function generateTitleFromGemini(keyword, game, level) {
 
     const styleMap = {
         chill: 'Спокойное, дружелюбное, позитивное',
-        bait: 'Кликбейтное, привлекающее внимание, шокирующее',
-        toxic: 'Жёсткое, токсичное, рейдж, на грани нервного срыва'
+        bait: 'Кликбейтное, интригующее, привлекающее внимание',
+        toxic: 'Игровой тильт, горение от игры, смешной рейдж (без реальных оскорблений)'
     };
     
-    const prompt = `Ты креативный Twitch стример. Придумай одно крутое название для стрима.
+    const prompt = `Ты креативный геймер и стример. Придумай одно крутое название для стрима.
 Игра: ${game}
 Главная тема или слово: ${keyword}
 Стиль/Настроение: ${styleMap[level]}
-Правила: Ответь ТОЛЬКО самим названием стрима. Не используй кавычки. Максимум 10 слов. Сделай его звучным.`;
+Правила: Ответь ТОЛЬКО самим названием стрима. Не используй кавычки. Максимум 10 слов.`;
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
@@ -119,6 +119,12 @@ async function generateTitleFromGemini(keyword, game, level) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
+                safetySettings: [
+                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+                ],
                 generationConfig: { temperature: 0.9, maxOutputTokens: 50 }
             })
         });

@@ -113,8 +113,8 @@ async function generateTitleFromGemini(keyword, game, level) {
 2. Ключевое слово/тема стрима: ${keyword}
 3. Настроение/Стиль: ${styleMap[level]}
 4. Название должно органично включать в себя Ключевое слово. 
-5. Название должно быть похоже на реальный заголовок трансляции (от 4 до 12 слов).
-6. НЕ пиши просто одно слово. Опиши, что будет происходить на стриме, добавь интригу или эмоцию.
+5. Название должно быть длинным, цепляющим (от 5 до 15 слов).
+6. НЕ пиши просто одно слово. Это должно быть законченное предложение, описывающее суть стрима с интригой.
 7. Ответь ТОЛЬКО самим названием. Без кавычек, без лишних приветствий.`;
 
     try {
@@ -129,7 +129,7 @@ async function generateTitleFromGemini(keyword, game, level) {
                     { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
                     { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
                 ],
-                generationConfig: { temperature: 0.9, maxOutputTokens: 300 }
+                generationConfig: { temperature: 0.9 }
             })
         });
 

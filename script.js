@@ -28,6 +28,7 @@ const addFavBtn = document.getElementById('favorite-btn');
 
 const tagsInput = document.getElementById('stream-tags');
 const tagsCounter = document.getElementById('tags-counter');
+const refreshTagsBtn = document.getElementById('refresh-tags-btn');
 const favTagsBtn = document.getElementById('favorite-tags-btn');
 const quickTagsContainer = document.getElementById('quick-tags-container');
 const favTagsContainer = document.getElementById('favorite-tags-container');
@@ -195,7 +196,7 @@ async function renderQuickTags(gameId) {
         topTags.forEach(tag => {
             const chip = document.createElement('div');
             chip.className = 'favorite-chip';
-            chip.innerHTML = `<span class="chip-name">+ ${tag}</span>`;
+            chip.innerHTML = `<span class="chip-name">+ ${tag}</span> <span class="tag-count">${tagCounts[tag]}</span>`;
             chip.querySelector('.chip-name').addEventListener('click', () => addTag(tag));
             quickTagsContainer.appendChild(chip);
         });
@@ -239,6 +240,14 @@ favTagsBtn.addEventListener('click', () => {
         localStorage.setItem(FAV_TAGS_KEY, JSON.stringify(favoriteTags));
         renderFavoriteTags();
         showStatus('Теги сохранены в избранное!');
+    }
+});
+
+refreshTagsBtn.addEventListener('click', () => {
+    if (selectedGameId) {
+        renderQuickTags(selectedGameId);
+    } else {
+        showStatus('Сначала выберите игру в поиске', true);
     }
 });
 

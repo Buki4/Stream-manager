@@ -173,6 +173,57 @@ input:focus, textarea:focus {
     cursor: pointer;
 }
 
+.divider {
+    border: none;
+    border-top: 1px solid #3a3a44;
+    margin: 24px 0;
+}
+
+.advanced-tools {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.tool-card {
+    background-color: #2a2a35;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #3a3a44;
+}
+
+.tool-card h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #e5e5eb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-toggles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #adadb8;
+    cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+    accent-color: #bf94ff;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
 .favorite-chip .remove-chip {
     opacity: 0.5;
     cursor: pointer;

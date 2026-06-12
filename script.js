@@ -1,6 +1,6 @@
 const CLIENT_ID = 'wp4nlqtylqr6frku7jzgay0at5r1iv';
 const REDIRECT_URI = 'https://buki4.github.io/Stream-manager/';
-const SCOPES = 'channel:manage:broadcast user:read:email';
+const SCOPES = 'channel:manage:broadcast user:read:email moderator:manage:chat_settings channel:edit:commercial channel:manage:polls channel:manage:predictions';
 
 const FAV_GAMES_KEY = 'twitch_manager_fav_games';
 let favoriteGames = JSON.parse(localStorage.getItem(FAV_GAMES_KEY) || '[]');
@@ -23,6 +23,18 @@ const titleKeyword = document.getElementById('title-keyword');
 const titleLevel = document.getElementById('title-level');
 const titleSource = document.getElementById('title-source');
 const addFavBtn = document.getElementById('favorite-btn');
+
+const tagsInput = document.getElementById('stream-tags');
+const chatSubOnly = document.getElementById('chat-subonly');
+const chatFollower = document.getElementById('chat-follower');
+const chatEmote = document.getElementById('chat-emote');
+const chatSlow = document.getElementById('chat-slow');
+const markerBtn = document.getElementById('marker-btn');
+const adBtns = document.querySelectorAll('.ad-btn');
+const pollTitle = document.getElementById('poll-title');
+const pollOpt1 = document.getElementById('poll-opt1');
+const pollOpt2 = document.getElementById('poll-opt2');
+const pollBtn = document.getElementById('poll-btn');
 
 // Settings Elements
 const settingsBtn = document.getElementById('settings-btn');
@@ -302,9 +314,34 @@ async function fetchChannelInfo() {
             titleInput.value = data.data[0].title;
             gameInput.value = data.data[0].game_name;
             selectedGameId = data.data[0].game_id;
+            if (data.data[0].tags) {
+                tagsInput.value = data.data[0].tags.join(', ');
+            }
+            fetchChatSettings();
         }
     } catch (e) {
         console.error('Ошибка при загрузке информации канала:', e);
+    }
+}
+
+async function fetchChatSettings() {
+    try {
+        const response = await fetch(`https://api.twitch.tv/helix/chat/settings?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`, {
+            headers: {
+                'Client-Id': CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        const data = await response.json();
+        if (data.data && data.data.length > 0) {
+            const settings = data.data[0];
+            chatSubOnly.checked = settings.subscriber_mode;
+            chatFollower.checked = settings.follower_mode;
+            chatEmote.checked = settings.emote_mode;
+            chatSlow.checked = settings.slow_mode;
+        }
+    } catch (e) {
+        console.error('Ошибка при загрузке настроек чата:', e);
     }
 }
 
@@ -378,6 +415,9 @@ updateBtn.addEventListener('click', async () => {
             body.game_id = selectedGameId;
         }
         
+        const tagsRaw = tagsInput.value.trim();
+        body.tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim().replace(/^#/, '')).filter(t => t).slice(0, 10) : [];
+        
         const response = await fetch(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, {
             method: 'PATCH',
             headers: {
@@ -400,5 +440,118 @@ updateBtn.addEventListener('click', async () => {
         updateBtn.textContent = 'Обновить информацию';
     }
 });
+
+// 5. Chat Settings
+async function updateChatSettings() {
+    if (!broadcasterId) return;
+    try {
+        await fetch(`https://api.twitch.tv/helix/chat/settings?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`, {
+            method: 'PATCH',
+            headers: {
+                'Client-Id': CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                subscriber_mode: chatSubOnly.checked,
+                follower_mode: chatFollower.checked,
+                emote_mode: chatEmote.checked,
+                slow_mode: chatSlow.checked
+            })
+        });
+        showStatus('Настройки чата обновлены');
+    } catch (e) {
+        showStatus('Ошибка при обновлении чата', true);
+    }
+}
+[chatSubOnly, chatFollower, chatEmote, chatSlow].forEach(cb => {
+    if(cb) cb.addEventListener('change', updateChatSettings);
+});
+
+// 6. Markers
+if(markerBtn) {
+    markerBtn.addEventListener('click', async () => {
+        if (!broadcasterId) return;
+        try {
+            const response = await fetch('https://api.twitch.tv/helix/streams/markers', {
+                method: 'POST',
+                headers: {
+                    'Client-Id': CLIENT_ID,
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: broadcasterId, description: 'Created from Manager' })
+            });
+            if (response.ok) showStatus('Маркер успешно установлен 📌');
+            else showStatus('Ошибка установки маркера (стрим должен быть онлайн)', true);
+        } catch (e) {
+            showStatus('Ошибка сети', true);
+        }
+    });
+}
+
+// 7. Ads
+adBtns.forEach(btn => {
+    btn.addEventListener('click', async () => {
+        if (!broadcasterId) return;
+        const duration = parseInt(btn.dataset.duration);
+        try {
+            const response = await fetch('https://api.twitch.tv/helix/channels/commercial', {
+                method: 'POST',
+                headers: {
+                    'Client-Id': CLIENT_ID,
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ broadcaster_id: broadcasterId, length: duration })
+            });
+            if (response.ok) showStatus(`Реклама на ${duration}с запущена 📺`);
+            else showStatus('Ошибка запуска рекламы', true);
+        } catch (e) {
+            showStatus('Ошибка сети', true);
+        }
+    });
+});
+
+// 8. Polls
+if(pollBtn) {
+    pollBtn.addEventListener('click', async () => {
+        if (!broadcasterId) return;
+        const title = pollTitle.value.trim();
+        const o1 = pollOpt1.value.trim();
+        const o2 = pollOpt2.value.trim();
+        if (!title || !o1 || !o2) {
+            showStatus('Заполните все поля опроса', true);
+            return;
+        }
+        
+        try {
+            const response = await fetch('https://api.twitch.tv/helix/polls', {
+                method: 'POST',
+                headers: {
+                    'Client-Id': CLIENT_ID,
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    broadcaster_id: broadcasterId,
+                    title: title,
+                    choices: [{ title: o1 }, { title: o2 }],
+                    duration: 60
+                })
+            });
+            if (response.ok) {
+                showStatus('Опрос запущен на 1 минуту 📊');
+                pollTitle.value = '';
+                pollOpt1.value = '';
+                pollOpt2.value = '';
+            } else {
+                showStatus('Ошибка запуска опроса', true);
+            }
+        } catch (e) {
+            showStatus('Ошибка сети', true);
+        }
+    });
+}
 
 checkAuth();

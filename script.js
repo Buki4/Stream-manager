@@ -525,6 +525,8 @@ async function updateRestreamChannels(newTitle) {
             headers: { 'Authorization': `Bearer ${restreamToken}` }
         });
         if (!channelsResponse.ok) {
+            const errBody = await channelsResponse.text();
+            alert('Ошибка GET каналов: ' + channelsResponse.status + '\n' + errBody);
             if(channelsResponse.status === 401 || channelsResponse.status === 403) {
                 localStorage.removeItem('restream_access_token');
                 checkRestreamAuthStatus();
@@ -535,6 +537,7 @@ async function updateRestreamChannels(newTitle) {
         const channelsList = Array.isArray(channelsDataRaw) ? channelsDataRaw : (channelsDataRaw.channels || channelsDataRaw.data || []);
         
         let successCount = 0;
+        let errorDump = [];
         for (const channel of channelsList) {
             const patchRes = await fetch(`https://api.restream.io/v2/user/channel-meta/${channel.id}`, {
                 method: 'PATCH',
@@ -544,10 +547,25 @@ async function updateRestreamChannels(newTitle) {
                 },
                 body: JSON.stringify({ title: newTitle })
             });
-            if(patchRes.ok) successCount++;
+            if(patchRes.ok) {
+                successCount++;
+            } else {
+                const patchErr = await patchRes.text();
+                errorDump.push(`ID ${channel.id}: ${patchRes.status} - ${patchErr}`);
+            }
         }
+        
+        if (successCount === 0 && channelsList.length > 0) {
+            alert("Restream PATCH Errors:\n" + errorDump.join('\n'));
+        }
+        
+        if (channelsList.length === 0) {
+            alert("В Restream не найдено ни одного канала!\nОтвет сервера: " + JSON.stringify(channelsDataRaw));
+        }
+
         return successCount > 0;
     } catch (e) {
+        alert('Критическая ошибка JS в Restream:\n' + e.message);
         console.error('Restream update error:', e);
         return false;
     }

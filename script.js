@@ -460,6 +460,7 @@ loginBtn.addEventListener('click', () => {
 // Restream Auth Logic
 let restreamToken = localStorage.getItem('restream_access_token');
 const loginRestreamBtn = document.getElementById('login-restream-btn');
+const logoutRestreamBtn = document.getElementById('logout-restream-btn');
 const restreamStatus = document.getElementById('restream-status');
 
 function checkRestreamAuthStatus() {
@@ -467,10 +468,21 @@ function checkRestreamAuthStatus() {
     if (restreamToken) {
         if(loginRestreamBtn) loginRestreamBtn.style.display = 'none';
         if(restreamStatus) restreamStatus.style.display = 'block';
+        if(logoutRestreamBtn) logoutRestreamBtn.style.display = 'block';
     } else {
         if(loginRestreamBtn) loginRestreamBtn.style.display = 'block';
         if(restreamStatus) restreamStatus.style.display = 'none';
+        if(logoutRestreamBtn) logoutRestreamBtn.style.display = 'none';
     }
+}
+
+if(logoutRestreamBtn) {
+    logoutRestreamBtn.addEventListener('click', () => {
+        localStorage.removeItem('restream_access_token');
+        restreamToken = null;
+        checkRestreamAuthStatus();
+        showStatus('Restream отключен');
+    });
 }
 
 if(loginRestreamBtn) {

@@ -494,16 +494,18 @@ if(loginRestreamBtn) {
 
 async function exchangeRestreamCode(code) {
     try {
-        const response = await fetch('https://api.restream.io/oauth/token', {
+        const proxy = 'https://corsproxy.io/?';
+        const response = await fetch(proxy + encodeURIComponent('https://api.restream.io/oauth/token'), {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + btoa(`${RES_CLIENT_ID}:${RES_CLIENT_SECRET}`)
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: new URLSearchParams({
                 'grant_type': 'authorization_code',
                 'redirect_uri': REDIRECT_URI,
-                'code': code
+                'code': code,
+                'client_id': RES_CLIENT_ID,
+                'client_secret': RES_CLIENT_SECRET
             })
         });
         const data = await response.json();

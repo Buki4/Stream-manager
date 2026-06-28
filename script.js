@@ -445,7 +445,6 @@ function checkAuth() {
     }
 
     checkRestreamAuthStatus();
-loadSettings();
 
 // UI Accordion Logic
 document.querySelectorAll('.accordion-header').forEach(header => {

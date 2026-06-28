@@ -475,7 +475,7 @@ function checkRestreamAuthStatus() {
 
 if(loginRestreamBtn) {
     loginRestreamBtn.addEventListener('click', () => {
-        const resAuthUrl = `https://api.restream.io/login?response_type=code&client_id=${RES_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+        const resAuthUrl = `https://api.restream.io/login?response_type=code&client_id=${RES_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=channels.read%20channels.write`;
         window.location.href = resAuthUrl;
     });
 }
@@ -515,7 +515,7 @@ async function updateRestreamChannels(newTitle) {
             headers: { 'Authorization': `Bearer ${restreamToken}` }
         });
         if (!channelsResponse.ok) {
-            if(channelsResponse.status === 401) {
+            if(channelsResponse.status === 401 || channelsResponse.status === 403) {
                 localStorage.removeItem('restream_access_token');
                 checkRestreamAuthStatus();
             }

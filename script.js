@@ -512,9 +512,11 @@ async function exchangeRestreamCode(code) {
             checkRestreamAuthStatus();
             setTimeout(() => showStatus('Restream успешно подключен!'), 1000);
         } else {
+            alert('Ошибка обмена токена Restream: ' + JSON.stringify(data));
             setTimeout(() => showStatus('Ошибка подключения Restream', true), 1000);
         }
     } catch (e) {
+        alert('Критическая ошибка (CORS/Network) в exchangeRestreamCode: ' + e.message);
         setTimeout(() => showStatus('Ошибка сети при подключении Restream', true), 1000);
     }
 }

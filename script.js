@@ -531,10 +531,11 @@ async function updateRestreamChannels(newTitle) {
             }
             return false;
         }
-        const channelsData = await channelsResponse.json();
+        const channelsDataRaw = await channelsResponse.json();
+        const channelsList = Array.isArray(channelsDataRaw) ? channelsDataRaw : (channelsDataRaw.channels || channelsDataRaw.data || []);
         
         let successCount = 0;
-        for (const channel of channelsData) {
+        for (const channel of channelsList) {
             const patchRes = await fetch(`https://api.restream.io/v2/user/channel-meta/${channel.id}`, {
                 method: 'PATCH',
                 headers: { 

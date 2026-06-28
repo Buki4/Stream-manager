@@ -121,7 +121,17 @@
                     Получить бесплатный ключ можно в <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #bf94ff; text-decoration: none;">Google AI Studio</a>. Ключ сохраняется только в вашем браузере.
                 </p>
             </div>
-            <button id="save-settings-btn" class="primary-btn">Сохранить и закрыть</button>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Интеграция с Restream</label>
+                <p style="font-size: 13px; color: #adadb8; margin-bottom: 12px;">
+                    Подключите Restream, чтобы при нажатии "Обновить информацию" название и игра менялись сразу на всех ваших стриминговых платформах.
+                </p>
+                <button id="login-restream-btn" class="secondary-btn" style="width: 100%; border: 1px solid #ff4f4f; color: #ff4f4f;">Подключить Restream</button>
+                <div id="restream-status" style="font-size: 13px; margin-top: 8px; color: #28a745; display: none; text-align: center;">✅ Restream подключен</div>
+            </div>
+
+            <button id="save-settings-btn" class="primary-btn" style="margin-top: 20px;">Сохранить и закрыть</button>
         </div>
     </div>
 

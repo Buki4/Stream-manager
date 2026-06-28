@@ -2,6 +2,9 @@ const CLIENT_ID = 'wp4nlqtylqr6frku7jzgay0at5r1iv';
 const REDIRECT_URI = 'https://buki4.github.io/Stream-manager/';
 const SCOPES = 'channel:manage:broadcast user:read:email moderator:manage:chat_settings channel:edit:commercial channel:manage:polls channel:manage:predictions';
 
+const RES_CLIENT_ID = 'f6dc4ec6-328e-42b7-bba5-9de64ba0615c';
+const RES_CLIENT_SECRET = '0bc9bd8e-ce8a-4d46-a62c-a1fec4c1b6bf';
+
 const FAV_GAMES_KEY = 'twitch_manager_fav_games';
 let favoriteGames = JSON.parse(localStorage.getItem(FAV_GAMES_KEY) || '[]');
 const FAV_TAGS_KEY = 'twitch_manager_fav_tags';
@@ -428,7 +431,22 @@ function checkAuth() {
     if (hash && hash.includes('access_token')) {
         const urlParams = new URLSearchParams(hash.replace('#', '?'));
         accessToken = urlParams.get('access_token');
+        localStorage.setItem('twitch_access_token', accessToken);
         window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+        accessToken = localStorage.getItem('twitch_access_token');
+    }
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const restreamCode = queryParams.get('code');
+    if (restreamCode) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        exchangeRestreamCode(restreamCode);
+    }
+
+    checkRestreamAuthStatus();
+
+    if (accessToken) {
         showApp();
         fetchUserInfo();
     }
@@ -438,6 +456,89 @@ loginBtn.addEventListener('click', () => {
     const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
     window.location.href = authUrl;
 });
+
+// Restream Auth Logic
+let restreamToken = localStorage.getItem('restream_access_token');
+const loginRestreamBtn = document.getElementById('login-restream-btn');
+const restreamStatus = document.getElementById('restream-status');
+
+function checkRestreamAuthStatus() {
+    restreamToken = localStorage.getItem('restream_access_token');
+    if (restreamToken) {
+        if(loginRestreamBtn) loginRestreamBtn.style.display = 'none';
+        if(restreamStatus) restreamStatus.style.display = 'block';
+    } else {
+        if(loginRestreamBtn) loginRestreamBtn.style.display = 'block';
+        if(restreamStatus) restreamStatus.style.display = 'none';
+    }
+}
+
+if(loginRestreamBtn) {
+    loginRestreamBtn.addEventListener('click', () => {
+        const resAuthUrl = `https://api.restream.io/login?response_type=code&client_id=${RES_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+        window.location.href = resAuthUrl;
+    });
+}
+
+async function exchangeRestreamCode(code) {
+    try {
+        const response = await fetch('https://api.restream.io/oauth/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + btoa(`${RES_CLIENT_ID}:${RES_CLIENT_SECRET}`)
+            },
+            body: new URLSearchParams({
+                'grant_type': 'authorization_code',
+                'redirect_uri': REDIRECT_URI,
+                'code': code
+            })
+        });
+        const data = await response.json();
+        if (data.access_token) {
+            localStorage.setItem('restream_access_token', data.access_token);
+            checkRestreamAuthStatus();
+            setTimeout(() => showStatus('Restream успешно подключен!'), 1000);
+        } else {
+            setTimeout(() => showStatus('Ошибка подключения Restream', true), 1000);
+        }
+    } catch (e) {
+        setTimeout(() => showStatus('Ошибка сети при подключении Restream', true), 1000);
+    }
+}
+
+async function updateRestreamChannels(newTitle) {
+    try {
+        const channelsResponse = await fetch('https://api.restream.io/v2/user/channels', {
+            headers: { 'Authorization': `Bearer ${restreamToken}` }
+        });
+        if (!channelsResponse.ok) {
+            if(channelsResponse.status === 401) {
+                localStorage.removeItem('restream_access_token');
+                checkRestreamAuthStatus();
+            }
+            return false;
+        }
+        const channelsData = await channelsResponse.json();
+        
+        let successCount = 0;
+        for (const channel of channelsData) {
+            const patchRes = await fetch(`https://api.restream.io/v2/user/channel-meta/${channel.id}`, {
+                method: 'PATCH',
+                headers: { 
+                    'Authorization': `Bearer ${restreamToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title: newTitle })
+            });
+            if(patchRes.ok) successCount++;
+        }
+        return successCount > 0;
+    } catch (e) {
+        console.error('Restream update error:', e);
+        return false;
+    }
+}
 
 function showApp() {
     loginSection.classList.add('hidden');
@@ -471,6 +572,7 @@ async function fetchUserInfo() {
             fetchChannelInfo();
         } else {
             showStatus('Ошибка авторизации. Попробуйте войти снова.', true);
+            localStorage.removeItem('twitch_access_token');
             loginSection.classList.remove('hidden');
             appSection.classList.add('hidden');
         }
@@ -611,8 +713,19 @@ updateBtn.addEventListener('click', async () => {
             body: JSON.stringify(body)
         });
         
+        let resSuccess = false;
+        if (restreamToken) {
+            resSuccess = await updateRestreamChannels(titleInput.value);
+        }
+        
         if (response.ok) {
-            showStatus('Успешно обновлено!');
+            if (restreamToken && resSuccess) {
+                showStatus('Успешно обновлено на Twitch и Restream!');
+            } else if (restreamToken) {
+                showStatus('Обновлено на Twitch. Ошибка в Restream.');
+            } else {
+                showStatus('Успешно обновлено!');
+            }
         } else {
             showStatus('Ошибка при обновлении. Проверьте права.', true);
         }

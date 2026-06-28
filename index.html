@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twitch Stream Manager</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -76,35 +76,41 @@
             <hr class="divider">
 
             <div class="advanced-tools">
-                <div class="tool-card">
-                    <h3>🛡️ Модерация чата</h3>
-                    <div class="chat-toggles">
-                        <label class="toggle-label"><input type="checkbox" id="chat-subonly"> Только сабы</label>
-                        <label class="toggle-label"><input type="checkbox" id="chat-follower"> Фолловеры</label>
-                        <label class="toggle-label"><input type="checkbox" id="chat-emote"> Только эмоуты</label>
-                        <label class="toggle-label"><input type="checkbox" id="chat-slow"> Слоу-мод</label>
+                <div class="tool-card accordion">
+                    <h3 class="accordion-header">🛡️ Модерация чата <span class="accordion-icon">▼</span></h3>
+                    <div class="accordion-content">
+                        <div class="chat-toggles">
+                            <label class="toggle-label"><input type="checkbox" id="chat-subonly"> Только сабы</label>
+                            <label class="toggle-label"><input type="checkbox" id="chat-follower"> Фолловеры</label>
+                            <label class="toggle-label"><input type="checkbox" id="chat-emote"> Только эмоуты</label>
+                            <label class="toggle-label"><input type="checkbox" id="chat-slow"> Слоу-мод</label>
+                        </div>
                     </div>
                 </div>
 
-                <div class="tool-card">
-                    <h3>⚡ Быстрые действия</h3>
-                    <button id="marker-btn" class="secondary-btn" style="width: 100%; margin-bottom: 10px;">📌 Поставить маркер</button>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <span style="font-size: 13px; color: #adadb8;">Реклама:</span>
-                        <button class="ad-btn secondary-btn" data-duration="30" style="flex: 1; padding: 6px;">30с</button>
-                        <button class="ad-btn secondary-btn" data-duration="60" style="flex: 1; padding: 6px;">60с</button>
-                        <button class="ad-btn secondary-btn" data-duration="90" style="flex: 1; padding: 6px;">90с</button>
+                <div class="tool-card accordion">
+                    <h3 class="accordion-header">⚡ Быстрые действия <span class="accordion-icon">▼</span></h3>
+                    <div class="accordion-content">
+                        <button id="marker-btn" class="secondary-btn" style="width: 100%; margin-bottom: 10px;">📌 Поставить маркер</button>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span style="font-size: 13px; color: #adadb8;">Реклама:</span>
+                            <button class="ad-btn secondary-btn" data-duration="30" style="flex: 1; padding: 6px;">30с</button>
+                            <button class="ad-btn secondary-btn" data-duration="60" style="flex: 1; padding: 6px;">60с</button>
+                            <button class="ad-btn secondary-btn" data-duration="90" style="flex: 1; padding: 6px;">90с</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="tool-card">
-                    <h3>📊 Быстрый опрос</h3>
-                    <input type="text" id="poll-title" placeholder="Вопрос" style="margin-bottom: 8px;">
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <input type="text" id="poll-opt1" placeholder="Вариант А" style="flex: 1;">
-                        <input type="text" id="poll-opt2" placeholder="Вариант Б" style="flex: 1;">
+                <div class="tool-card accordion">
+                    <h3 class="accordion-header">📊 Быстрый опрос <span class="accordion-icon">▼</span></h3>
+                    <div class="accordion-content">
+                        <input type="text" id="poll-title" placeholder="Вопрос" style="margin-bottom: 8px;">
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="poll-opt1" placeholder="Вариант А" style="flex: 1;">
+                            <input type="text" id="poll-opt2" placeholder="Вариант Б" style="flex: 1;">
+                        </div>
+                        <button id="poll-btn" class="secondary-btn" style="width: 100%;">Запустить на 1 минуту</button>
                     </div>
-                    <button id="poll-btn" class="secondary-btn" style="width: 100%;">Запустить на 1 минуту</button>
                 </div>
             </div>
         </div>
@@ -136,6 +142,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=14"></script>
+    <script src="script.js?v=15"></script>
 </body>
 </html>

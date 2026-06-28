@@ -358,3 +358,83 @@ button:active {
     border: 1px solid var(--input-border);
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
+
+/* Accordion Styles */
+.accordion-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 !important;
+}
+
+.accordion-content {
+    display: none;
+    margin-top: 16px;
+}
+
+.tool-card.active .accordion-content {
+    display: block;
+}
+
+.accordion-icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    color: #adadb8;
+}
+
+.tool-card.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+/* Compact Mode for OBS Docks (Narrow Screens) */
+@media (max-width: 600px) {
+    body {
+        background-color: transparent; /* better for OBS */
+        background-image: none;
+    }
+    .container {
+        padding: 16px;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+    h1 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        margin-bottom: 16px;
+    }
+    input, textarea, .styled-select {
+        padding: 10px;
+        font-size: 14px;
+    }
+    .secondary-btn, .icon-btn {
+        padding: 0 12px;
+        font-size: 16px;
+    }
+    button {
+        padding: 12px;
+        font-size: 15px;
+    }
+    .favorite-chip {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+    .advanced-tools {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .tool-card {
+        padding: 12px;
+    }
+    #update-btn {
+        position: sticky;
+        bottom: 10px;
+        z-index: 50;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+}

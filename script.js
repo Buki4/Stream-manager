@@ -445,6 +445,15 @@ function checkAuth() {
     }
 
     checkRestreamAuthStatus();
+loadSettings();
+
+// UI Accordion Logic
+document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const card = header.closest('.tool-card');
+        card.classList.toggle('active');
+    });
+});
 
     if (accessToken) {
         showApp();

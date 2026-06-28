@@ -482,7 +482,8 @@ if(loginRestreamBtn) {
 
 async function exchangeRestreamCode(code) {
     try {
-        const response = await fetch('https://api.restream.io/oauth/token', {
+        const proxy = 'https://corsproxy.io/?';
+        const response = await fetch(proxy + encodeURIComponent('https://api.restream.io/oauth/token'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -509,7 +510,8 @@ async function exchangeRestreamCode(code) {
 
 async function updateRestreamChannels(newTitle) {
     try {
-        const channelsResponse = await fetch('https://api.restream.io/v2/user/channels', {
+        const proxy = 'https://corsproxy.io/?';
+        const channelsResponse = await fetch(proxy + encodeURIComponent('https://api.restream.io/v2/user/channels'), {
             headers: { 'Authorization': `Bearer ${restreamToken}` }
         });
         if (!channelsResponse.ok) {
@@ -522,8 +524,9 @@ async function updateRestreamChannels(newTitle) {
         const channelsData = await channelsResponse.json();
         
         let successCount = 0;
+        const proxy = 'https://corsproxy.io/?';
         for (const channel of channelsData) {
-            const patchRes = await fetch(`https://api.restream.io/v2/user/channel-meta/${channel.id}`, {
+            const patchRes = await fetch(proxy + encodeURIComponent(`https://api.restream.io/v2/user/channel-meta/${channel.id}`), {
                 method: 'PATCH',
                 headers: { 
                     'Authorization': `Bearer ${restreamToken}`,

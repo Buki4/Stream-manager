@@ -524,7 +524,6 @@ async function updateRestreamChannels(newTitle) {
         const channelsData = await channelsResponse.json();
         
         let successCount = 0;
-        const proxy = 'https://corsproxy.io/?';
         for (const channel of channelsData) {
             const patchRes = await fetch(proxy + encodeURIComponent(`https://api.restream.io/v2/user/channel-meta/${channel.id}`), {
                 method: 'PATCH',
